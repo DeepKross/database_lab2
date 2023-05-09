@@ -1,47 +1,192 @@
 import {type NextPage} from "next";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
+import {api} from "~/utils/api";
+import {useEffect, useState} from "react";
+import {Box, Divider} from "@mui/material";
+import {AppRouter} from "~/server/api/root";
+import {inferRouterOutputs} from "@trpc/server";
 
 // import {TasksView} from "~/components/DbTables";
 // import {api} from "~/utils/api";
 // import {CircularProgress} from "@mui/material";
+type RouterOutput = inferRouterOutputs<AppRouter>;
+export type firstQueryRes = RouterOutput["queries"]["getEmployeeAndDepartment"];
+export type secondQueryRes = RouterOutput["queries"]["getJobAndJobHistory"];
+export type thirdQueryRes = RouterOutput["queries"]["getEmployeesByDepartmentId"];
+export type fourthQueryRes = RouterOutput["queries"]["getDepartmentAndLocation"];
+export type fifthQueryRes = RouterOutput["queries"]["getEmployeeSalaryHistory"];
+const FirstQuery = () => {
+    const [employeeId, setEmployeeId] = useState<number>(1);
+    const [result, setResult] = useState<firstQueryRes>(null);
+    const [error, setError] = useState<string>(null);
+    const { mutate } = api.queries.getEmployeeAndDepartment.useMutation({
+        onSuccess: (data) => {
+            console.log(data);
+            setResult(data);
+        },
+        onError: (error) => {
+            console.log(error);
+            setResult(null);
+            setError(error.message);
+        }
+    });
 
+    return (
+        <Box>
+            <Typography> 1. Get an Employee and their Department Information (parameter: Employee ID)</Typography>
+            <Typography>Employee ID: </Typography>
+            <input type="number" value={employeeId} onChange={(e) => setEmployeeId(Number(e.target.value))}/>
+            <Button variant={"contained"} onClick={() => mutate({employeeId})}>Get</Button>
+
+            <Typography>Result: {result ? JSON.stringify(result) : "No result"}</Typography>
+            {error && <Typography>Error: {error}</Typography>}
+        </Box>
+    )
+}
+
+const SecondQuery = () => {
+    const [jobId, setJobId] = useState<number>(1);
+    const [result, setResult] = useState<secondQueryRes>(null);
+    const [error, setError] = useState<string>(null);
+    const { mutate } = api.queries.getJobAndJobHistory.useMutation({
+        onSuccess: (data) => {
+            console.log(data);
+            setResult(data);
+        },
+        onError: (error) => {
+            console.log(error);
+            setResult(null);
+            setError(error.message);
+        }
+    });
+
+    return (
+        <Box>
+            <Typography>2. Get a Job and its associated Job History (parameter: Job ID)</Typography>
+            <Typography>Employee ID: </Typography>
+            <input type="number" value={jobId} onChange={(e) => setJobId(Number(e.target.value))}/>
+            <Button variant={"contained"} onClick={() => mutate({jobId})}>Get</Button>
+
+            <Typography>Result: {result ? JSON.stringify(result) : "No result"}</Typography>
+            {error && <Typography>Error: {error}</Typography>}
+        </Box>
+    )
+}
+const ThirdQuery = () => {
+    // getEmployeesByDepartmentId: publicProcedure.input(
+    const [departmentId, setDepartmentId] = useState<number>(1);
+    const [result, setResult] = useState<thirdQueryRes>(null);
+    const [error, setError] = useState<string>("");
+    const { mutate } = api.queries.getEmployeesByDepartmentId.useMutation({
+        onSuccess: (data) => {
+            console.log(data);
+            setResult(data);
+        },
+        onError: (error) => {
+            console.log(error);
+            setResult(null);
+            setError(error.message);
+        }
+    });
+
+    return (
+        <Box>
+            <Typography>    3.Get all Employees in a specific Department (parameter: Department ID)
+            </Typography>
+            <Typography>Department ID: </Typography>
+            <input type="number" value={departmentId} onChange={(e) => setDepartmentId(Number(e.target.value))}/>
+
+            <Button variant={"contained"} onClick={() => mutate({departmentId})}>Get</Button>
+
+            <Typography>Result: {result ? JSON.stringify(result) : "No result"}</Typography>
+            {error && <Typography>Error: {error}</Typography>}
+        </Box>
+    )
+}
+
+const FourthQuery = () => {
+    // 4. Get a Department and its Location (parameter: Department ID)
+    const [departmentId, setDepartmentId] = useState<number>(1);
+    const [result, setResult] = useState<fourthQueryRes>(null);
+    const [error, setError] = useState<string>("");
+    const { mutate } = api.queries.getDepartmentAndLocation.useMutation({
+        onSuccess: (data) => {
+            console.log(data);
+            setResult(data);
+        },
+        onError: (error) => {
+            console.log(error);
+            setResult(null);
+            setError(error.message);
+        }
+    });
+
+    return (
+        <Box>
+            <Typography>     4. Get a Department and its Location (parameter: Department ID)
+            </Typography>
+            <Typography>Department ID: </Typography>
+            <input type="number" value={departmentId} onChange={(e) => setDepartmentId(Number(e.target.value))}/>
+
+            <Button variant={"contained"} onClick={() => mutate({departmentId})}>Get</Button>
+
+            <Typography>Result: {result ? JSON.stringify(result) : "No result"}</Typography>
+            {error && <Typography>Error: {error}</Typography>}
+        </Box>
+    )
+}
+
+const FifthQuery = () => {
+    // 5. Get an Employee's Salary History (parameter: Employee ID)
+    const [employeeId, setEmployeeId] = useState<number>(1);
+    const [result, setResult] = useState<fifthQueryRes>(null);
+    const [error, setError] = useState<string>("");
+    const { mutate } = api.queries.getEmployeeSalaryHistory.useMutation({
+        onSuccess: (data) => {
+            console.log(data);
+            setResult(data);
+        },
+        onError: (error) => {
+            console.log(error);
+            setResult(null);
+            setError(error.message);
+        }
+    });
+
+    return (
+        <Box>
+            <Typography>      5. Get an Employee's Salary History (parameter: Employee ID)
+            </Typography>
+            <Typography>Employee ID: </Typography>
+            <input type="number" value={employeeId} onChange={(e) => setEmployeeId(Number(e.target.value))}/>
+
+            <Button variant={"contained"} onClick={() => mutate({employeeId})}>Get</Button>
+            <Typography>Result: {result ? JSON.stringify(result) : "No result"}</Typography>
+            {error && <Typography>Error: {error}</Typography>}
+        </Box>
+    )
+}
+const SimpleQueries = () => {
+    return (
+        <Box>
+            <FirstQuery />
+
+            <Divider  />
+            <SecondQuery />
+
+            <Divider  />
+            <ThirdQuery />
+
+            <Divider />
+            <FourthQuery />
+
+            <Divider />
+            <FifthQuery />
+        </Box>
+    )
+}
 const Tables: NextPage = () => {
-    // const {data: usersData, isLoading: isUsersLoading, isError: isUsersError} = api.users.getAll.useQuery();
-    // const {data: salaryData, isLoading: isSalaryLoading, isError: isSalaryError} = api.salary.getAll.useQuery();
-    // const {data: projectData, isLoading: isProjectLoading, isError: isProjectError} = api.projects.getAll.useQuery();
-    // const {
-    //     data: iterationData,
-    //     isLoading: isIterationLoading,
-    //     isError: isIterationError
-    // } = api.iteration.getAll.useQuery();
-    // const {data: taskData, isLoading: isTaskLoading, isError: isTaskError} = api.task.getAll.useQuery();
-    // const {
-    //     data: projectMembersData,
-    //     isLoading: isProjectMembersLoading,
-    //     isError: isProjectMembersError
-    // } = api.projectMember.getAll.useQuery();
-    //
-    //
-    // if (isUsersLoading) return <CircularProgress/>;
-    // if (isUsersError) return <div>Error fetching users</div>;
-    //
-    //
-    // if (isSalaryLoading) return <CircularProgress/>;
-    // if (isSalaryError) return <div>Error fetching salaries</div>;
-    //
-    // if (isProjectLoading) return <CircularProgress/>;
-    // if (isProjectError) return <div>Error fetching projects</div>;
-    //
-    // if (isIterationLoading) return <CircularProgress/>;
-    // if (isIterationError) return <div>Error fetching iterations</div>;
-    //
-    // if (isTaskLoading) return <CircularProgress/>;
-    // if (isTaskError) return <div>Error fetching tasks</div>;
-    //
-    // if (isProjectMembersLoading) return <CircularProgress/>;
-    // if (isProjectMembersError) return <div>Error fetching project members</div>;
-
     return (
         <>
             <h1>View & edit tables</h1>
@@ -56,15 +201,9 @@ const Tables: NextPage = () => {
                     </Button>
                 </a>
             </Typography>
+            <SimpleQueries />
         </>
-        /* <TasksView
-             usersData={usersData}
-             salaryData={salaryData}
-             projectData={projectData}
-             iterationData={iterationData}
-             taskData={taskData}
-             projectMembersData={projectMembersData}
-         />*/
+
     );
 };
 

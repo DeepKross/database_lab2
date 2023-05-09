@@ -13,12 +13,6 @@ import {queriesRouter} from "~/server/api/routers/queries";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-    users: userRouter,
-    salary: salaryRouter,
-    projects: projectRouter,
-    iteration: iterationRouter,
-    task: taskRouter,
-    projectMember: projectMemberRouter,
     queries: queriesRouter,
 });
 
