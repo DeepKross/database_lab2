@@ -1,4 +1,6 @@
 import {type NextPage} from "next";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 
 // import {TasksView} from "~/components/DbTables";
 // import {api} from "~/utils/api";
@@ -41,15 +43,28 @@ const Tables: NextPage = () => {
     // if (isProjectMembersError) return <div>Error fetching project members</div>;
 
     return (
-        <h1>Big Bebra</h1>
-       /* <TasksView
-            usersData={usersData}
-            salaryData={salaryData}
-            projectData={projectData}
-            iterationData={iterationData}
-            taskData={taskData}
-            projectMembersData={projectMembersData}
-        />*/
+        <>
+            <h1>View & edit tables</h1>
+            <Typography>
+                <a href={"http://localhost:5555"} target={"_blank"}>
+                    <Button variant={"contained"} sx={{
+                        width: '30vw',
+                        mt: '1rem',
+                        mb: '3rem',
+                    }}>
+                        Open Tables & Queries section
+                    </Button>
+                </a>
+            </Typography>
+        </>
+        /* <TasksView
+             usersData={usersData}
+             salaryData={salaryData}
+             projectData={projectData}
+             iterationData={iterationData}
+             taskData={taskData}
+             projectMembersData={projectMembersData}
+         />*/
     );
 };
 

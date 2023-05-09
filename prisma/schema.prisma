@@ -7,65 +7,58 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Iteration {
-  id          Int     @id @default(autoincrement())
-  projectId   Int
-  project     Project @relation(fields: [projectId], references: [id])
-  name        String
-  description String
-  tasks       Task[]
+model Employee {
+  id            Int             @id @default(autoincrement())
+  fName         String
+  lName         String
+  bDate         DateTime?
+  sex           Int?
+  empAddress    String?
+  depId         Int
+  Department    Department      @relation(fields: [depId], references: [id])
+  JobHistory    JobHistory[]
+  SalaryHistory SalaryHistory[]
 }
 
-model Project {
-  id             Int             @id @default(autoincrement())
-  name           String          @unique
-  description    String
-  joinCode       String?
-  ownerId        Int
-  owner          User            @relation(fields: [ownerId], references: [id])
-  iterations     Iteration[]
-  projectMembers ProjectMember[] // add many-to-many relation to User explicitly
+model SalaryHistory {
+  id           Int       @id @default(autoincrement())
+  emplId       Int
+  salary       Float
+  startingDate DateTime
+  endDate      DateTime?
+  Employee     Employee  @relation(fields: [emplId], references: [id])
 }
 
-model ProjectMember {
-  id        Int     @id @default(autoincrement())
-  projectId Int
-  project   Project @relation(fields: [projectId], references: [id])
-  userId    Int
-  user      User    @relation(fields: [userId], references: [id])
-
-  @@unique([projectId, userId])
+model JobHistory {
+  id           Int       @id @default(autoincrement())
+  jobId        Int
+  emplId       Int
+  startingDate DateTime
+  endingDate   DateTime?
+  Employee     Employee  @relation(fields: [emplId], references: [id])
+  Job          Job       @relation(fields: [jobId], references: [id])
 }
 
-model Salary {
-  id     Int   @id @default(autoincrement())
-  userId Int   @unique
-  user   User  @relation(fields: [userId], references: [id])
-  amount Float
+model Job {
+  id         Int          @id @default(autoincrement())
+  jobTitle   String
+  minSalary  Float?
+  maxSalary  Float?
+  JobHistory JobHistory[]
 }
 
-model Task {
-  id          Int       @id @default(autoincrement())
-  iterationId Int
-  iteration   Iteration @relation(fields: [iterationId], references: [id])
-  points      Float
-  title       String
-  description String
-  status      String
-  creatorId   Int
-  creator     User      @relation(fields: [creatorId], references: [id], name: "creator")
-  executorId  Int?
-  executor    User?     @relation(fields: [executorId], references: [id], name: "executor")
+model Department {
+  id               Int        @id @default(autoincrement())
+  depName          String?
+  dateOfFoundation DateTime
+  locId            Int
+  Location         Location   @relation(fields: [locId], references: [id])
+  Employee         Employee[]
 }
 
-model User {
-  id             Int             @id @default(autoincrement())
-  username       String          @unique
-  email          String          @unique
-  salary         Salary?
-  password       String
-  createdTasks   Task[]          @relation("creator")
-  assignedTasks  Task[]          @relation("executor")
-  projects       Project[] // remove "scope" argument
-  projectMembers ProjectMember[] // add many-to-many relation to Project explicitly
+model Location {
+  id         Int          @id @default(autoincrement())
+  locName    String
+  postIndex  String?
+  Department Department[]
 }
