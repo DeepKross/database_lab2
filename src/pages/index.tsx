@@ -23,12 +23,13 @@ const Home: NextPage = () => {
             }>
                 In this application you can easily manage the databases related to the project management system.
                 To do so, simply go to the tables section and start working with the database.
-                There you can view available records, delete them by pressing the red delete button,
-                and add new records by pressing the purple add button. Last but not least, you can edit the records
-                by pressing the edit icon.
+                There you can view available records, select some and delete them,
+                and add new records by pressing the add button. Last but not least, you can edit the records
+                by placing a tick and double clicking the field you want to change.
                 <br/>
                 <br/>
-                You can create, edit and delete projects, iterations, tasks, users and add them to the projects.
+                You can create, edit and delete LOCATIONS of some companies, COMPANIES (departments), EMPLOYEES,
+                their JOB HISTORIES and SALARY HISTORIES, and availible JOBS.
                 <br/>
                 <br/>
                 You also can perform both simple and complex queries to the database(see the Queries section).
@@ -53,7 +54,7 @@ const Home: NextPage = () => {
                 }
             }>
                 <h2>Database schema</h2>
-                <Image src="/DBDiagram.png" alt="DB diagram" width={1214 / 2} height={1752 / 2} />
+                <Image src="/diagram.png" alt="DB diagram" width={1214 / 2} height={1752 / 2} />
             </Box>
         </Box>
     )

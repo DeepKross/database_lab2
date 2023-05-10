@@ -9,7 +9,7 @@ export const queriesRouter = createTRPCRouter({
                 z.object({
                     employeeId: z.number(),
                 })).mutation(async ({ctx, input}) => {
-                return await ctx.prisma.employee.findUnique({
+                return ctx.prisma.employee.findUnique({
                     where: {
                         id: input.employeeId,
                     },
@@ -24,7 +24,7 @@ export const queriesRouter = createTRPCRouter({
                 z.object({
                     jobId: z.number(),
                 })).mutation(async ({ctx, input}) => {
-                return await ctx.prisma.job.findUnique({
+                return ctx.prisma.job.findUnique({
                     where: {
                         id: input.jobId,
                     },
@@ -40,7 +40,7 @@ export const queriesRouter = createTRPCRouter({
                 z.object({
                     departmentId: z.number(),
                 })).mutation(async ({ctx, input}) => {
-                return await ctx.prisma.employee.findMany({
+                return ctx.prisma.employee.findMany({
                     where: {
                         depId: input.departmentId,
                     },
@@ -57,7 +57,7 @@ export const queriesRouter = createTRPCRouter({
                 z.object({
                     departmentId: z.number(),
                 })).mutation(async ({ctx, input}) => {
-                return await ctx.prisma.department.findUnique({
+                return ctx.prisma.department.findUnique({
                     where: {
                         id: input.departmentId,
                     },
@@ -73,7 +73,7 @@ export const queriesRouter = createTRPCRouter({
                 z.object({
                     employeeId: z.number(),
                 })).mutation(async ({ctx, input}) => {
-                return await ctx.prisma.employee.findUnique({
+                return ctx.prisma.employee.findUnique({
                     where: {
                         id: input.employeeId,
                     },
@@ -82,6 +82,93 @@ export const queriesRouter = createTRPCRouter({
                     },
                 });
             }),
-        }
-    )
-;
+
+            getEmployeesInSameDepartment: publicProcedure.input(
+                z.object({
+                    employeeId: z.number(),
+                })).mutation(async ({ctx, input}) => {
+                // Find employee X's department ID
+                const employeeX = await ctx.prisma.employee.findUnique({
+                    where: {id: input.employeeId},
+                    select: {depId: true},
+                });
+
+                if (!employeeX) {
+                    throw new TRPCError({
+                        code: 'NOT_FOUND',
+                        message: 'Employee not found',
+                    });
+                }
+
+                const departmentId = employeeX.depId;
+
+                // Find employees in the same department as employee X
+                const employeesInSameDepartment = await ctx.prisma.employee.findMany({
+                    where: {depId: departmentId},
+                });
+
+                return employeesInSameDepartment;
+            }),
+        // 7. Get names of locations where are located departments in which employee X is not working
+        getLocationsWhereEmployeeXNotWorking: publicProcedure.input(
+            z.object({
+                employeeId: z.number(),
+            })).mutation(async ({ctx, input}) => {
+            // Find employee X's department ID
+            const employeeX = await ctx.prisma.employee.findUnique({
+                where: { id: input.employeeId },
+                select: { depId: true },
+            });
+
+            if (!employeeX) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'Employee not found',
+                });
+            }
+
+            const employeeDepartmentId = employeeX.depId;
+
+            // Find departments that are not employee X's department
+            const otherDepartments = await ctx.prisma.department.findMany({
+                where: { id: { not: employeeDepartmentId } },
+                include: { Location: true },
+            });
+
+            // Extract the location names
+            const otherLocations = otherDepartments.map(department => department.Location.locName);
+
+            return otherLocations;
+        }),
+
+        // 6. Get the name of the Employee(s) working in Department X that has worked on every job available
+        getEmployeeWorkedEveryJob: publicProcedure.input(
+            z.object({
+                departmentId: z.number(),
+            })
+        ).mutation(async ({ ctx, input }) => {
+            const allJobsCount = await ctx.prisma.job.count();
+
+            const employees = await ctx.prisma.employee.findMany({
+                where: {
+                    depId: input.departmentId,
+                },
+                include: {
+                    JobHistory: true,
+                },
+            });
+
+            const employeesWorkedEveryJob = employees.filter((employee) => {
+                const employeeJobsCount = new Set(employee.JobHistory.map((jh) => jh.jobId)).size;
+                return employeeJobsCount === allJobsCount;
+            });
+
+            return employeesWorkedEveryJob.map((employee) => ({
+                id: employee.id,
+                name: `${employee.fName} ${employee.lName}`,
+            }));
+        }),
+
+
+    }
+    );

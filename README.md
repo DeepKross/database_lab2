@@ -1,4 +1,13 @@
-# Create T3 App
+#How to set up?
+1. `clone the repo`
+2. `npm install`
+3. `npx prisma migrate dev --name init`
+4. `npx prisma generate`
+5. `npm run db-seed`
+6. `npx prisma studio`
+7. In the separate tab `npm run dev`
+
+## Create T3 App
 
 This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
 
