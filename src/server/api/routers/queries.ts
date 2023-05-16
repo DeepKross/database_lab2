@@ -83,65 +83,85 @@ export const queriesRouter = createTRPCRouter({
                 });
             }),
 
-            getEmployeesInSameDepartment: publicProcedure.input(
-                z.object({
-                    employeeId: z.number(),
-                })).mutation(async ({ctx, input}) => {
-                // Find employee X's department ID
-                const employeeX = await ctx.prisma.employee.findUnique({
-                    where: {id: input.employeeId},
-                    select: {depId: true},
-                });
-
-                if (!employeeX) {
-                    throw new TRPCError({
-                        code: 'NOT_FOUND',
-                        message: 'Employee not found',
-                    });
-                }
-
-                const departmentId = employeeX.depId;
-
-                // Find employees in the same department as employee X
-                const employeesInSameDepartment = await ctx.prisma.employee.findMany({
-                    where: {depId: departmentId},
-                });
-
-                return employeesInSameDepartment;
-            }),
-        // 7. Get names of locations where are located departments in which employee X is not working
-        getLocationsWhereEmployeeXNotWorking: publicProcedure.input(
+        // 6. Get information about Employees that worked the same jobs as Employee X
+        getEmployeesWorkedSameJob: publicProcedure.input(
             z.object({
                 employeeId: z.number(),
-            })).mutation(async ({ctx, input}) => {
-            // Find employee X's department ID
-            const employeeX = await ctx.prisma.employee.findUnique({
-                where: { id: input.employeeId },
-                select: { depId: true },
+            })
+        ).mutation(async ({ ctx, input }) => {
+            // Get the jobs that Employee X has worked on
+            const employeeXJobs = await ctx.prisma.jobHistory.findMany({
+                where: {
+                    emplId: input.employeeId,
+                },
+            });
+            const employeeXJobIds = employeeXJobs.map((jh) => jh.jobId);
+
+            // Get all employees
+            const employees = await ctx.prisma.employee.findMany({
+                include: {
+                    JobHistory: true,
+                },
             });
 
-            if (!employeeX) {
-                throw new TRPCError({
-                    code: 'NOT_FOUND',
-                    message: 'Employee not found',
-                });
-            }
-
-            const employeeDepartmentId = employeeX.depId;
-
-            // Find departments that are not employee X's department
-            const otherDepartments = await ctx.prisma.department.findMany({
-                where: { id: { not: employeeDepartmentId } },
-                include: { Location: true },
+            // Filter out employees who have worked on all the jobs that Employee X has worked on
+            const employeesWorkedJobsAsEmployeeX = employees.filter(emp => {
+                return employeeXJobIds.every(jobId =>
+                    emp.JobHistory.some(jh => jh.jobId === jobId)
+                );
             });
 
-            // Extract the location names
-            const otherLocations = otherDepartments.map(department => department.Location.locName);
-
-            return otherLocations;
+            return employeesWorkedJobsAsEmployeeX;
         }),
 
-        // 6. Get the name of the Employee(s) working in Department X that has worked on every job available
+
+
+
+
+
+        // 7. Get information about Employees that worked exactly the same jobs as Employee X
+        getEmployeesWorkedExactSameJobs: publicProcedure.input(
+            z.object({
+                employeeId: z.number(),
+            })
+        ).mutation(async ({ ctx, input }) => {
+            // Get the jobs that Employee X has worked on
+            const employeeXJobs = await ctx.prisma.jobHistory.findMany({
+                where: {
+                    emplId: input.employeeId,
+                },
+            });
+            const employeeXJobIds = employeeXJobs.map((jh) => jh.jobId);
+
+            // Get all employees who have worked on the same jobs as Employee X
+            const employees = await ctx.prisma.employee.findMany({
+                include: {
+                    JobHistory: true,
+                },
+            });
+
+            // Filter out employees who worked on jobs other than Employee X or have worked on fewer jobs
+            const employeesWithExactSameJobs = employees.filter(emp => {
+                const empJobIds = emp.JobHistory.map(jh => jh.jobId);
+                return (
+                    empJobIds.length === employeeXJobIds.length &&
+                    empJobIds.every(jobId => employeeXJobIds.includes(jobId))
+                );
+            });
+
+            return employeesWithExactSameJobs;
+        }),
+
+
+
+
+
+
+        /*//Filter out employees who have an empty array of JobHistory
+                employees = employees.filter(emp => emp.JobHistory.length > 0);*/
+
+
+        // 8. Get the name of the Employee(s) working in Department X that has worked on every job available
         getEmployeeWorkedEveryJob: publicProcedure.input(
             z.object({
                 departmentId: z.number(),
@@ -168,7 +188,6 @@ export const queriesRouter = createTRPCRouter({
                 name: `${employee.fName} ${employee.lName}`,
             }));
         }),
-
 
     }
     );

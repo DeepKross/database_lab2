@@ -16,8 +16,8 @@ export type QueryRes = {
     third: RouterOutput["queries"]["getEmployeesByDepartmentId"];
     fourth: RouterOutput["queries"]["getDepartmentAndLocation"];
     fifth: RouterOutput["queries"]["getEmployeeSalaryHistory"];
-    sixth: RouterOutput["queries"]["getEmployeesInSameDepartment"];
-    seventh: RouterOutput["queries"]["getLocationsWhereEmployeeXNotWorking"];
+    sixth: RouterOutput["queries"]["getEmployeesWorkedSameJob"];
+    seventh: RouterOutput["queries"]["getEmployeesWorkedExactSameJobs"];
     eighth: RouterOutput["queries"]["getEmployeeWorkedEveryJob"];
 };
 
@@ -123,16 +123,15 @@ const SimpleQueries = () => {
         },
         {
             queryKey: "sixth",
-            queryName: "Complex 1. Get all Employees in the same Department as a specific Employee (parameter: Employee ID)",
+            queryName: "Complex 1. Get information about Employees that worked the same jobs as Employee X",
             queryId: "employeeId",
-            queryFunc: "getEmployeesInSameDepartment",
+            queryFunc: "getEmployeesWorkedSameJob",
         },
         {
             queryKey: "seventh",
-            queryName: "Complex 2. Get all Location names where Departments are located in which" +
-                " a specific Employee is not working (parameter: Employee ID)",
+            queryName: "Complex 2. Get employee`s information about employees that worked on those and only those jobs as Employee X",
             queryId: "employeeId",
-            queryFunc: "getLocationsWhereEmployeeXNotWorking",
+            queryFunc: "getEmployeesWorkedExactSameJobs",
         },
         {
             queryKey: "eighth",
@@ -164,7 +163,7 @@ const Tables: NextPage = () => {
                         variant={"contained"}
                         sx={{width: "30vw", mt: "1rem", mb: "3rem"}}
                     >
-                        Open Tables & Queries section
+                        Open Tables
                     </Button>
                 </a>
             </Typography>
